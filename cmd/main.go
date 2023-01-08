@@ -1,14 +1,15 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/alitdarmaputra/nadeshiko-bot/pkg/handlers"
 	"github.com/bwmarrin/discordgo"
+	"github.com/joho/godotenv"
 )
 
 var (
@@ -16,8 +17,11 @@ var (
 )
 
 func init() {
-	flag.StringVar(&Token, "t", "", "Bot token")
-	flag.Parse()
+	env, err := godotenv.Read(".env")
+	if err != nil {
+		log.Fatal("Error reading .env file")
+	}
+	Token = env["BOT_TOKEN"]
 }
 
 func main() {
