@@ -1,8 +1,9 @@
 package handlers
 
 import (
-	"fmt"
+	"strings"
 
+	"github.com/alitdarmaputra/nadeshiko-bot/pkg/services"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -15,5 +16,12 @@ func Handlers(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// Allow bot to read message
 	s.Identify.Intents |= discordgo.IntentMessageContent
 
-	fmt.Println(m.Content)
+	if isCommand := strings.HasPrefix(m.Content, "!"); isCommand {
+		switch m.Content {
+		case "!help":
+			services.HelpService(s, m)
+		default:
+			services.NotFoundService(s, m)
+		}
+	}
 }
