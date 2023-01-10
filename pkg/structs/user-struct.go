@@ -10,7 +10,7 @@ type FeedsBody struct {
 	PageInfo struct {
 		HasNextPage bool   `json:"has_next_page"`
 		EndCursor   string `json:"end_cursor"`
-	}
+	} `json:"page_info"`
 }
 
 type FeedsResponse struct {
