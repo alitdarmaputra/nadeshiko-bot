@@ -17,11 +17,12 @@ var (
 )
 
 func init() {
-	env, err := godotenv.Read(".env")
+	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error reading .env file")
 	}
-	Token = env["BOT_TOKEN"]
+
+	Token = os.Getenv("BOT_TOKEN")
 }
 
 func main() {
