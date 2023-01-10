@@ -223,6 +223,8 @@ func GetHelp(command string) string {
 		return "Type:\n!help\n**to show help**"
 	} else if command == "usage" {
 		return "Type:\n!usage <command_name>\n**to show how to use a command**"
+	} else if command == "tod" {
+		return "Type:\n!tod <truth | dare>\n**To get a truth or dare question**"
 	} else {
 		return "Sorry, keyword not found"
 	}
