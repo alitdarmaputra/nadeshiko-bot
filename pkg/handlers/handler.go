@@ -99,6 +99,28 @@ func Handlers(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if err != nil {
 			fmt.Println("Error:", err)
 		}
+	} else if strings.HasPrefix(m.Content, "!tod") {
+		// Split argument
+		args := strings.Split(m.Content, " ")
+
+		if len(args) == 2 {
+			content, err := services.GetTOD(args[1], m.Author.ID)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			_, err = s.ChannelMessageSend(m.ChannelID, content)
+			if err != nil {
+				fmt.Println(err)
+			}
+			return
+		}
+
+		_, err := s.ChannelMessageSend(m.ChannelID, "Not enough argument. Please provide **two name**")
+		if err != nil {
+			fmt.Println("Error:", err)
+		}
 	} else {
 		var content string = services.NotFoundService()
 		_, err := s.ChannelMessageSend(m.ChannelID, content)

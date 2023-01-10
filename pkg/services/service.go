@@ -184,6 +184,36 @@ func calcMatch(intFullNames []int) []int {
 	}
 }
 
+func GetTOD(option string, to string) (string, error) {
+	option = strings.ToLower(option)
+	var content string
+
+	if option == "truth" || option == "dare" {
+		req, _ := http.NewRequest(
+			http.MethodGet,
+			os.Getenv("TOD_URL")+option+"?rating="+os.Getenv("TOD_RATION"),
+			nil,
+		)
+
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return content, err
+		}
+		defer res.Body.Close()
+
+		if res.StatusCode == http.StatusOK {
+			var todResponse structs.TODResponse
+			_ = json.NewDecoder(res.Body).Decode(&todResponse)
+
+			content = fmt.Sprintf("To: <@%s>\n%s: %s", to, todResponse.Type, todResponse.Question)
+			return content, nil
+		}
+		return content, errors.New("Ups, somehting went wrong when getting user question")
+	} else {
+		return "Invalid option, only `truth` or `dare` are valid", nil
+	}
+}
+
 func GetHelp(command string) string {
 	if command == "lovecalc" {
 		return "Type:\n!lovecalc <name1> <name2>\n**Ex: !lovecalc Nadeshiko Kagamihara**"
