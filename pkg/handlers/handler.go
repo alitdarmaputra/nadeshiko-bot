@@ -18,7 +18,6 @@ func Handlers(s *discordgo.Session, m *discordgo.MessageCreate) {
 	s.Identify.Intents |= discordgo.IntentMessageContent
 
 	if strings.HasPrefix(m.Content, "!") {
-
 		if strings.HasPrefix(m.Content, "!usage") {
 			// Split argument
 			args := strings.Split(m.Content, " ")
@@ -39,7 +38,7 @@ func Handlers(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if err != nil {
 				fmt.Println("Error:", err)
 			}
-		} else if m.Content == "!help" {
+		} else if m.Content == "!h" {
 			var content string = services.HelpService(m)
 			_, err := s.ChannelMessageSend(m.ChannelID, content)
 			if err != nil {
