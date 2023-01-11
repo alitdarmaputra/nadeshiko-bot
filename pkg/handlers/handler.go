@@ -63,7 +63,7 @@ func Handlers(s *discordgo.Session, m *discordgo.MessageCreate) {
 				}
 
 				userInfo.UserFeeds = userFeeds
-				fmt.Println("List url", userInfo.UserFeeds)
+
 				for i := 0; i < len(userInfo.UserFeeds) && i < 3; i++ {
 					if i == 0 {
 						_, err = s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Here what I get from %s", userInfo.Username))
@@ -118,7 +118,7 @@ func Handlers(s *discordgo.Session, m *discordgo.MessageCreate) {
 				return
 			}
 
-			_, err := s.ChannelMessageSend(m.ChannelID, "Not enough argument. Please provide **two name**")
+			_, err := s.ChannelMessageSend(m.ChannelID, "Not enough argument. Please provide **truth or dare word**")
 			if err != nil {
 				fmt.Println("Error:", err)
 			}

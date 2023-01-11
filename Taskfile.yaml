@@ -1,0 +1,17 @@
+version: "3"
+
+tasks:
+  build:
+    desc: Build the app
+    cmds:
+    - goflags=-mod=mod go build -o bin/nadeshiko-bot cmd/main.go
+
+  run:
+    desc: Run the app
+    cmds:
+    - goflags=-mod=mod go run cmd/main.go
+
+  bot:
+    desc: Execute the app
+    cmds:
+    - ./bin/nadeshiko-bot 
