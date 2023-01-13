@@ -21,7 +21,7 @@ func NotFoundService() string {
 	var content = fmt.Sprintf(
 		"Keyword not found " +
 			"\n" +
-			"\nTry **!help** to get list keywords",
+			"\nTry **!h** to get list keywords",
 	)
 	return content
 }
@@ -172,9 +172,9 @@ func calcMatch(intFullNames []int) []int {
 
 		for left <= right {
 			if left == right {
-				subIntFullNames = append(subIntFullNames, intFullNames[left])
+				subIntFullNames = append(subIntFullNames, intFullNames[left]%10)
 			} else {
-				subIntFullNames = append(subIntFullNames, intFullNames[left]+intFullNames[right])
+				subIntFullNames = append(subIntFullNames, (intFullNames[left]+intFullNames[right])%10)
 			}
 			left++
 			right--
