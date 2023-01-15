@@ -1,18 +1,23 @@
 package instagram
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
 	instagram "github.com/alitdarmaputra/nadeshiko-bot/internal/instagram/services"
+	"github.com/alitdarmaputra/nadeshiko-bot/repositories"
 	"github.com/bwmarrin/discordgo"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type InstagramHandler struct {
+	db  *mongo.Database
+	ctx context.Context
 }
 
-func NewInstagramHandler() *InstagramHandler {
-	return &InstagramHandler{}
+func NewInstagramHandler(db *mongo.Database, ctx context.Context) *InstagramHandler {
+	return &InstagramHandler{db: db, ctx: ctx}
 }
 
 func (i *InstagramHandler) Handler(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -25,7 +30,7 @@ func (i *InstagramHandler) Handler(s *discordgo.Session, m *discordgo.MessageCre
 	s.Identify.Intents |= discordgo.IntentMessageContent
 
 	if strings.HasPrefix(m.Content, "!stalk") {
-		var instagramService = instagram.NewInstagramService()
+		var instagramService = instagram.NewInstagramService(repositories.NewInstagramRepo(i.db, i.ctx))
 
 		// Split argument
 		args := strings.Split(m.Content, " ")
@@ -39,13 +44,13 @@ func (i *InstagramHandler) Handler(s *discordgo.Session, m *discordgo.MessageCre
 				return
 			}
 
-			userFeeds, err := instagramService.GetUserFeeds(instagram.UserID)
-			if err != nil {
-				fmt.Println("Error:", err)
-				return
+			if len(instagram.UserFeeds) == 0 {
+				err = instagramService.GetUserFeeds(instagram)
+				if err != nil {
+					fmt.Println("Error:", err)
+					return
+				}
 			}
-
-			instagram.UserFeeds = userFeeds
 
 			for i := 0; i < len(instagram.UserFeeds) && i < 3; i++ {
 				if i == 0 {

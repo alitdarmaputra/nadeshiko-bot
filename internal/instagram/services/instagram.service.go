@@ -8,52 +8,60 @@ import (
 	"os"
 
 	"github.com/alitdarmaputra/nadeshiko-bot/models"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type InstagramService struct {
+	instagramRepo models.InstagramRepository
 }
 
-func NewInstagramService() *InstagramService {
-	return &InstagramService{}
+func NewInstagramService(instagramRepo models.InstagramRepository) *InstagramService {
+	return &InstagramService{instagramRepo: instagramRepo}
 }
 
 func (i *InstagramService) GetUserId(username string) (*models.Instagram, error) {
-	var instagram models.Instagram
+	// check if exist in database
+	instagram, err := i.instagramRepo.FindOne(username)
 
-	req, _ := http.NewRequest(
-		http.MethodGet,
-		fmt.Sprintf("%s/get_user_id?username=%s", os.Getenv("INSTA_URL"), username),
-		nil,
-	)
+	if err == mongo.ErrNoDocuments {
+		req, _ := http.NewRequest(
+			http.MethodGet,
+			fmt.Sprintf("%s/get_user_id?username=%s", os.Getenv("INSTA_URL"), username),
+			nil,
+		)
 
-	req.Header.Add("X-RapidAPI-Key", os.Getenv("X_RAPID_KEY"))
-	req.Header.Add("X-RapidAPI-Host", os.Getenv("INSTA_HOST"))
+		req.Header.Add("X-RapidAPI-Key", os.Getenv("X_RAPID_KEY"))
+		req.Header.Add("X-RapidAPI-Host", os.Getenv("INSTA_HOST"))
 
-	res, err := http.DefaultClient.Do(req)
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return nil, err
+		}
+		defer res.Body.Close()
+
+		if res.StatusCode != http.StatusOK {
+			return nil, errors.New("Something went wrong when getting user id")
+		}
+
+		instagram = &models.Instagram{}
+		err = json.NewDecoder(res.Body).Decode(instagram)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return instagram, nil
+	}
+
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
 
-	if res.StatusCode != http.StatusOK {
-		return nil, errors.New("Something went wrong when getting user id")
-	}
-
-	err = json.NewDecoder(res.Body).Decode(&instagram)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &instagram, nil
+	return instagram, nil
 }
 
-func (i *InstagramService) GetUserFeeds(userId string) ([]string, error) {
+func (i *InstagramService) GetUserFeeds(instagram *models.Instagram) error {
 	var userPhotos []string
-
-	if userId == "" {
-		return userPhotos, errors.New("UserId not found")
-	}
 
 	var endCursor string
 	for i := 0; i < 3; i++ {
@@ -62,7 +70,7 @@ func (i *InstagramService) GetUserFeeds(userId string) ([]string, error) {
 			fmt.Sprintf(
 				"%s/public_user_posts?userid=%s&endcursor=%s",
 				os.Getenv("INSTA_URL"),
-				userId,
+				instagram.UserID,
 				endCursor,
 			),
 			nil,
@@ -73,7 +81,7 @@ func (i *InstagramService) GetUserFeeds(userId string) ([]string, error) {
 
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
-			return userPhotos, err
+			return err
 		}
 		defer res.Body.Close()
 
@@ -81,7 +89,7 @@ func (i *InstagramService) GetUserFeeds(userId string) ([]string, error) {
 		if res.StatusCode == http.StatusOK {
 			err = json.NewDecoder(res.Body).Decode(&feedsResponse)
 			if err != nil {
-				return userPhotos, err
+				return err
 			}
 			feeds := feedsResponse.Body.Edges
 
@@ -100,8 +108,15 @@ func (i *InstagramService) GetUserFeeds(userId string) ([]string, error) {
 	}
 
 	if len(userPhotos) > 0 {
-		return userPhotos, nil
+		instagram.UserFeeds = userPhotos
+		// save result to database
+		err := i.instagramRepo.Save(instagram)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		return nil
 	} else {
-		return userPhotos, errors.New("Ups, something went wrong while getting user photos")
+		return errors.New("Ups, something went wrong while getting user photos")
 	}
 }

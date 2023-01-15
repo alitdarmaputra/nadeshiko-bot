@@ -18,9 +18,9 @@ type FeedsResponse struct {
 }
 
 type Instagram struct {
-	UserID    string `json:"user_id"`
-	Username  string `json:"username"`
-	UserFeeds []string
+	UserID    string   `json:"user_id"  bson:"user_id"`
+	Username  string   `json:"username" bson:"username"`
+	UserFeeds []string `                bson:"user_feeds"`
 }
 
 type InstagramRepository interface {

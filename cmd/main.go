@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/alitdarmaputra/nadeshiko-bot/databases"
 	help "github.com/alitdarmaputra/nadeshiko-bot/internal/help/controllers"
 	instagram "github.com/alitdarmaputra/nadeshiko-bot/internal/instagram/controllers"
 	love "github.com/alitdarmaputra/nadeshiko-bot/internal/love/controllers"
@@ -29,13 +30,23 @@ func init() {
 }
 
 func main() {
+	// Initialize database
+	client, ctx, cancel, err := databases.Connect(os.Getenv("MONGO_URI"))
+	if err != nil {
+		panic(err)
+	}
+	defer databases.Close(client, ctx, cancel)
+
+	db := databases.GetDatabase(os.Getenv("MONGO_DATABASE"), client)
+	databases.Ping(client, ctx)
+
 	dg, err := discordgo.New("Bot " + Token)
 	if err != nil {
 		fmt.Println("Error creating discord session:", err)
 		return
 	}
 
-	dg.AddHandler(instagram.NewInstagramHandler().Handler)
+	dg.AddHandler(instagram.NewInstagramHandler(db, ctx).Handler)
 	dg.AddHandler(love.NewLoveHandler().Handler)
 	dg.AddHandler(tod.NewTodhandler().Handler)
 	dg.AddHandler(help.NewHelpHandler().Handler)
