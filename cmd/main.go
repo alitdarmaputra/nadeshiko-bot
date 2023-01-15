@@ -7,7 +7,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/alitdarmaputra/nadeshiko-bot/pkg/handlers"
+	help "github.com/alitdarmaputra/nadeshiko-bot/internal/help/controllers"
+	instagram "github.com/alitdarmaputra/nadeshiko-bot/internal/instagram/controllers"
+	love "github.com/alitdarmaputra/nadeshiko-bot/internal/love/controllers"
+	tod "github.com/alitdarmaputra/nadeshiko-bot/internal/tod/controllers"
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
 )
@@ -32,7 +35,10 @@ func main() {
 		return
 	}
 
-	dg.AddHandler(handlers.Handlers)
+	dg.AddHandler(instagram.NewInstagramHandler().Handler)
+	dg.AddHandler(love.NewLoveHandler().Handler)
+	dg.AddHandler(tod.NewTodhandler().Handler)
+	dg.AddHandler(help.NewHelpHandler().Handler)
 
 	dg.Identify.Intents = discordgo.IntentsGuildMessages
 

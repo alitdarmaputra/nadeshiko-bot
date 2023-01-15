@@ -1,4 +1,4 @@
-package structs
+package models
 
 type FeedsBody struct {
 	Edges []struct {
@@ -17,8 +17,13 @@ type FeedsResponse struct {
 	Body FeedsBody
 }
 
-type UserInfo struct {
+type Instagram struct {
 	UserID    string `json:"user_id"`
 	Username  string `json:"username"`
 	UserFeeds []string
+}
+
+type InstagramRepository interface {
+	FindOne(username string) (*Instagram, error)
+	Save(instagram *Instagram) error
 }

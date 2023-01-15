@@ -1,4 +1,4 @@
-package structs
+package models
 
 type TODResponse struct {
 	Type     string
