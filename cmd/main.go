@@ -38,7 +38,10 @@ func main() {
 	defer databases.Close(client, ctx, cancel)
 
 	db := databases.GetDatabase(os.Getenv("MONGO_DATABASE"), client)
-	databases.Ping(client, ctx)
+	err = databases.Ping(client, ctx)
+	if err != nil {
+		panic(err)
+	}
 
 	dg, err := discordgo.New("Bot " + Token)
 	if err != nil {
