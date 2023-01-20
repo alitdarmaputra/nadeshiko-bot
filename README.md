@@ -27,6 +27,7 @@ Nadeshiko bot is a personal discord bot for entertaining a discord guild with ma
 
 - Go V1.16>=
 - <a name="https://taskfile.dev/installation/">Taskfile</a> (optional)
+- Mongo DB
 
 ### Installing <a name="installing"></a>
 * Clone this repository
